@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Perfil de Riesgo — Pampa Capital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#001629;
+    --ink-soft:#3c5064;
+    --muted:#5b6b7c;
+    --paper:#f3f3fa;
+    --card:#ffffff;
+    --line:#dcdfe8;
+    --gold:#a9803f;
+    --gold-soft:#f3ead9;
+    --slate:#485865;
+    --good:#2f7d5c;
+    --good-soft:#e6f2ec;
+    --warn:#a8631c;
+    --warn-soft:#f7ecdd;
+    --shadow: 0 1px 2px rgba(0,22,41,.06), 0 8px 24px -12px rgba(0,22,41,.18);
+    --hero-bg:#001629;
+    --hero-fg:#efeadd;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --ink:#eef2f6;
+      --ink-soft:#c3ceda;
+      --muted:#93a3b5;
+      --paper:#0a1420;
+      --card:#111f30;
+      --line:#233448;
+      --gold:#d3af6f;
+      --gold-soft:#26200f;
+      --slate:#93a3b5;
+      --good:#7fcba6;
+      --good-soft:#12251d;
+      --warn:#e0a262;
+      --warn-soft:#2a1f10;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+    }
+  }
+  :root[data-theme="dark"]{
+    --ink:#eef2f6;
+    --ink-soft:#c3ceda;
+    --muted:#93a3b5;
+    --paper:#0a1420;
+    --card:#111f30;
+    --line:#233448;
+    --gold:#d3af6f;
+    --gold-soft:#26200f;
+    --slate:#93a3b5;
+    --good:#7fcba6;
+    --good-soft:#12251d;
+    --warn:#e0a262;
+    --warn-soft:#2a1f10;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px -12px rgba(0,0,0,.5);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',system-ui,sans-serif;
+    line-height:1.5;
+    margin:0;
+  }
+  h1,h2,h3,.display{
+    font-family:'Fraunces',Georgia,serif;
+    text-wrap:balance;
+    color:var(--ink);
+    font-weight:600;
+  }
+  .mono{ font-family:'IBM Plex Mono',ui-monospace,monospace; font-variant-numeric:tabular-nums; }
+  a{color:inherit;}
+
+  .app{ max-width:1080px; margin:0 auto; padding:1.75rem 1.25rem 4rem; }
+
+  .masthead{ display:flex; align-items:flex-end; justify-content:space-between; gap:1rem; flex-wrap:wrap; padding-bottom:1.1rem; border-bottom:1px solid var(--line); margin-bottom:1.5rem; }
+  .wordmark{ font-family:'Fraunces',serif; font-weight:600; letter-spacing:.04em; font-size:.8rem; text-transform:uppercase; color:var(--gold); }
+  .masthead h1{ font-size:1.7rem; margin:.15rem 0 0; }
+  .masthead p{ margin:.25rem 0 0; color:var(--muted); font-size:.92rem; max-width:34em; }
+  .theme-note{ font-size:.72rem; color:var(--muted); text-align:right; }
+
+  .shell{ display:grid; grid-template-columns:200px 1fr; gap:2rem; align-items:start; }
+  @media (max-width:760px){ .shell{ grid-template-columns:1fr; } }
+
+  .stepper{ display:flex; flex-direction:column; gap:.2rem; position:sticky; top:1rem; }
+  @media (max-width:760px){
+    .stepper{ position:static; flex-direction:row; overflow-x:auto; gap:.4rem; padding-bottom:.3rem; }
+  }
+  .step-btn{
+    text-align:left; background:none; border:none; border-left:2px solid var(--line);
+    padding:.55rem .8rem; font-family:inherit; font-size:.83rem; color:var(--muted);
+    cursor:pointer; border-radius:0 6px 6px 0; white-space:nowrap;
+  }
+  .step-btn .num{ font-family:'IBM Plex Mono',monospace; font-size:.72rem; margin-right:.4rem; opacity:.7; }
+  .step-btn:hover{ background:var(--card); color:var(--ink); }
+  .step-btn.active{ border-left-color:var(--gold); background:var(--card); color:var(--ink); font-weight:600; box-shadow:var(--shadow); }
+  .step-btn.done .num::after{ content:"✓"; margin-left:.3em; color:var(--good); }
+  @media (max-width:760px){ .step-btn{ border-left:none; border-bottom:2px solid var(--line); border-radius:6px 6px 0 0; } .step-btn.active{ border-bottom-color:var(--gold); } }
+
+  .panel{ min-width:0; }
+  .step{ display:none; }
+  .step.active{ display:block; animation:fade .25s ease; }
+  @keyframes fade{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:none;} }
+  @media (prefers-reduced-motion:reduce){ .step.active{ animation:none; } }
+
+  .block-head{ margin-bottom:1.2rem; }
+  .block-head .eyebrow{ font-size:.72rem; text-transform:uppercase; letter-spacing:.09em; color:var(--gold); font-weight:600; }
+  .block-head h2{ font-size:1.4rem; margin:.2rem 0 .3rem; }
+  .block-head p{ color:var(--muted); font-size:.88rem; max-width:44em; margin:0; }
+
+  .field{ margin-bottom:1rem; }
+  .field label{ display:block; font-size:.82rem; font-weight:600; margin-bottom:.3rem; color:var(--ink-soft); }
+  .field input[type=text],.field input[type=email],.field input[type=tel]{
+    width:100%; padding:.6rem .7rem; border:1px solid var(--line); border-radius:8px;
+    background:var(--card); color:var(--ink); font-family:inherit; font-size:.92rem;
+  }
+  .field-row{ display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  @media (max-width:520px){ .field-row{ grid-template-columns:1fr; } }
+
+  .question{ margin-bottom:1.35rem; padding-bottom:1.35rem; border-bottom:1px solid var(--line); }
+  .question:last-child{ border-bottom:none; }
+  .question .qtext{ font-size:.95rem; font-weight:600; margin-bottom:.15rem; }
+  .question .qid{ font-family:'IBM Plex Mono',monospace; font-size:.72rem; color:var(--gold); margin-right:.5rem; }
+  .question .qhint{ font-size:.82rem; color:var(--muted); margin-bottom:.6rem; }
+  .options{ display:flex; flex-direction:column; gap:.4rem; }
+  .option{ display:flex; align-items:flex-start; gap:.6rem; padding:.55rem .75rem; border:1px solid var(--line); border-radius:8px; cursor:pointer; background:var(--card); transition:border-color .12s,background .12s; }
+  .option:hover{ border-color:color-mix(in srgb, var(--gold) 50%, var(--line)); }
+  .option:has(input:checked){ border-color:var(--gold); background:var(--gold-soft); }
+  .option input{ margin-top:.22rem; accent-color:var(--gold); flex:none; }
+  .option span{ font-size:.88rem; color:var(--ink-soft); }
+  .option-grid{ font-size:.78rem; }
+  .mix-table{ width:100%; border-collapse:collapse; margin-bottom:.7rem; font-size:.78rem; }
+  .mix-table th,.mix-table td{ border:1px solid var(--line); padding:.3rem .45rem; text-align:center; }
+  .mix-table th{ color:var(--muted); font-weight:600; }
+
+  .navrow{ display:flex; justify-content:space-between; align-items:center; margin-top:1.6rem; padding-top:1.2rem; border-top:1px solid var(--line); }
+  .btn{ font-family:inherit; font-size:.86rem; font-weight:600; border-radius:8px; padding:.6rem 1.1rem; cursor:pointer; border:1px solid var(--line); background:var(--card); color:var(--ink); text-decoration:none; display:inline-block; }
+  .btn.primary{ background:var(--ink); color:var(--gold-soft); border-color:var(--ink); }
+  .btn.primary:hover{ opacity:.9; }
+  .btn:hover{ border-color:var(--gold); }
+  .btn:disabled{ opacity:.4; cursor:not-allowed; }
+  .btn.ghost{ background:none; border:none; color:var(--muted); }
+
+  /* Results */
+  .results-grid{ display:grid; grid-template-columns:1fr 1fr; gap:1.1rem; margin-bottom:1.3rem; }
+  @media (max-width:640px){ .results-grid{ grid-template-columns:1fr; } }
+  .gauge-card{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:1.1rem 1.2rem; box-shadow:var(--shadow); }
+  .gauge-card h3{ font-size:.78rem; text-transform:uppercase; letter-spacing:.07em; color:var(--muted); font-family:'Inter'; font-weight:700; margin:0 0 .5rem; }
+  .gauge-wrap{ display:flex; align-items:center; gap:1rem; }
+  .gauge-num{ font-family:'IBM Plex Mono',monospace; font-size:1.9rem; font-weight:600; }
+  .gauge-band{ font-family:'Fraunces',serif; font-size:1.05rem; font-weight:600; }
+  .gauge-sub{ font-size:.78rem; color:var(--muted); margin-top:.1rem; }
+
+  .final-card{ grid-column:1 / -1; background:var(--hero-bg); color:var(--hero-fg); border-radius:14px; padding:1.4rem 1.5rem; box-shadow:var(--shadow); }
+  .final-card .eyebrow{ font-size:.72rem; text-transform:uppercase; letter-spacing:.09em; opacity:.75; }
+  .final-card .profile-name{ font-family:'Fraunces',serif; font-size:2.1rem; font-weight:700; margin:.15rem 0 .7rem; }
+  .band-track{ position:relative; height:10px; border-radius:6px; background:rgba(239,234,221,.18); margin-bottom:.35rem; }
+  .band-track .fill{ position:absolute; top:0; left:0; height:100%; border-radius:6px; background:var(--gold); }
+  .band-track .marker{ position:absolute; top:-4px; width:2px; height:18px; background:#fff; }
+  .band-labels{ display:flex; justify-content:space-between; font-size:.72rem; opacity:.75; }
+  .driver-note{ margin:1rem 0 0; padding-top:.9rem; border-top:1px solid rgba(239,234,221,.18); font-size:.85rem; line-height:1.5; opacity:.9; }
+
+  .note-box{ display:flex; gap:.7rem; padding:.85rem 1rem; border-radius:10px; margin-bottom:1.1rem; font-size:.87rem; }
+  .note-box.warn{ background:var(--warn-soft); color:var(--warn); border:1px solid color-mix(in srgb, var(--warn) 35%, transparent); }
+  .note-box.good{ background:var(--good-soft); color:var(--good); border:1px solid color-mix(in srgb, var(--good) 35%, transparent); }
+
+  .portfolio-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:.9rem; margin-bottom:1.3rem; }
+  @media (max-width:640px){ .portfolio-row{ grid-template-columns:1fr; } }
+  .pcard{ border:1px solid var(--line); border-radius:12px; padding:1rem; background:var(--card); }
+  .pcard.active{ border-color:var(--gold); box-shadow:0 0 0 1px var(--gold) inset; }
+  .pcard h4{ font-family:'Fraunces',serif; font-size:1rem; margin:0 0 .3rem; }
+  .pcard p{ font-size:.8rem; color:var(--muted); margin:0; }
+  .placeholder-tag{ display:inline-block; font-size:.65rem; text-transform:uppercase; letter-spacing:.05em; color:var(--warn); border:1px solid var(--warn); border-radius:4px; padding:.05rem .35rem; margin-top:.5rem; }
+
+  .summary-card{ background:var(--card); border:1px solid var(--line); border-radius:12px; padding:1.1rem 1.2rem; margin-bottom:1rem; }
+  .summary-grid{ display:grid; grid-template-columns:1fr 1fr; gap:.4rem 1.5rem; font-size:.85rem; }
+  @media (max-width:520px){ .summary-grid{ grid-template-columns:1fr; } }
+  .summary-grid dt{ color:var(--muted); }
+  .summary-grid dd{ margin:0 0 .5rem; font-weight:600; }
+  textarea{ width:100%; min-height:70px; border:1px solid var(--line); border-radius:8px; padding:.6rem .7rem; font-family:inherit; font-size:.85rem; background:var(--card); color:var(--ink); resize:vertical; }
+  .copybar{ display:flex; gap:.6rem; align-items:center; margin-top:.7rem; flex-wrap:wrap; }
+  .copied{ font-size:.78rem; color:var(--good); opacity:0; transition:opacity .2s; }
+  .copied.show{ opacity:1; }
+  .save-hint{ font-size:.76rem; color:var(--muted); margin-top:.4rem; }
+  .btn.whatsapp{ background:#25d366; color:#06210f; border-color:#25d366; }
+  .btn.whatsapp:hover{ opacity:.9; }
+  .btn.mail{ background:var(--ink); color:var(--gold-soft); border-color:var(--ink); }
+  .btn.mail:hover{ opacity:.9; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="masthead">
+    <div>
+      <div class="wordmark">Pampa Capital</div>
+      <h1>Perfil de Riesgo</h1>
+      <p>Un cuestionario breve para entender tu tolerancia al riesgo, tu capacidad financiera y tus objetivos de inversión.</p>
+    </div>
+    <div class="theme-note">Tus respuestas no se comparten con nadie<br>hasta que vos decidís enviarlas.</div>
+  </header>
+
+  <div class="shell">
+    <nav class="stepper" id="stepper"></nav>
+    <main class="panel">
+      <div id="stepsHost"></div>
+      <div class="navrow">
+        <button class="btn ghost" id="backBtn" type="button">← Atrás</button>
+        <button class="btn primary" id="nextBtn" type="button">Siguiente →</button>
+      </div>
+    </main>
+  </div>
+</div>
+
+<script>
+/* ---------- Data ---------- */
+
+const QUESTIONNAIRE_VERSION = '1.5'; // subir este número cada vez que cambien las preguntas
+
+const TOLERANCE = [
+  {id:'a1', q:'Comparado con otras personas, ¿cómo describirías tu disposición a tomar riesgos financieros?',
+   opts:['Muy por debajo del promedio','Por debajo del promedio','Promedio','Por encima del promedio','Muy por encima del promedio']},
+  {id:'a2', q:'Elegí la cartera con la que te sentirías más cómodo invirtiendo tu dinero.',
+   hint:'Cartera Conservadora: pérdida máxima de 5%, retorno promedio de 6% anual. Cartera Moderada: caída máxima de 8%, retorno promedio de 7% anual. Cartera Agresiva: caída máxima de 15%, retorno promedio de 9% anual.',
+   opts:['Cartera Conservadora','Cartera Moderada','Cartera Agresiva']},
+  {id:'a3', q:'¿Hasta qué punto podría caer el valor total de tus inversiones antes de que empieces a sentirte incómodo?',
+   opts:['Cualquier caída me haría sentir incómodo','5%','10%','15%']},
+  {id:'a4', q:'Si pudieras aumentar el retorno esperado de tu cartera asumiendo más riesgo —incluyendo la posibilidad de perder parte del capital inicial— ¿qué tan dispuesto estarías?',
+   opts:['No estoy dispuesto a asumir más riesgo','Dispuesto a asumir algo más, con una porción menor de mis recursos','Dispuesto a asumir bastante más, con una porción importante','Dispuesto a asumir mucho más, con la mayoría de mis recursos']},
+  {id:'a5', q:'Si una parte de tu cartera pudiera generar mejor retorno a cambio de no poder venderla por varios meses (por ejemplo, en fondos de private equity, private credit o real estate), ¿qué tan dispuesto estarías a resignar esa liquidez?',
+   opts:['No estoy dispuesto, prefiero mantener todo con liquidez inmediata','Dispuesto a resignarla en una porción menor de mis recursos (hasta 10-15%)','Dispuesto a resignarla en una porción moderada (15-30%)','Dispuesto a resignarla en una porción importante (más de 30%) si el retorno esperado lo justifica']},
+];
+
+const CAPACITY = [
+  {id:'b1', q:'Edad', opts:['Menos de 40 años','Entre 40 y 55 años','Entre 56 y 65 años','Más de 65 años / jubilado'], pts:[3,2,1,0]},
+  {id:'b2', q:'Horizonte de inversión para este monto', opts:['Más de 5 años','Entre 3 y 5 años','Entre 1 y 3 años','Menos de 1 año'], pts:[3,2,1,0]},
+  {id:'b3', q:'¿Contás con un fondo de reserva aparte que cubra al menos 6 meses de gastos ante una emergencia?', opts:['Sí, cubre más de 12 meses','Sí, cubre entre 6 y 12 meses','No'], pts:[2,1,0]},
+  {id:'b4', q:'¿Cómo esperás que evolucionen tus ingresos en los próximos 5 años?', opts:['Deberían aumentar','Deberían mantenerse estables','Deberían disminuir'], pts:[2,1,0]},
+  {id:'b5', q:'¿Pensás retirar parte de esta inversión en los próximos 12 meses?', opts:['No','Sí, menos del 15% del total','No tengo certeza','Sí, más del 15% del total'], pts:[2,1,1,0]},
+];
+
+const GOAL = [
+  {id:'c1', q:'¿Cuál es el objetivo principal de esta inversión?', scored:false,
+   opts:['Preservar el capital','Generar ingresos recurrentes','Crecimiento moderado del patrimonio','Maximizar el crecimiento a largo plazo']},
+  {id:'c2', q:'Para cumplir ese objetivo en el plazo que planteaste, ¿qué tasa de crecimiento anual aproximada necesitás?', scored:true,
+   opts:['Entre 4% y 5%','Entre 6% y 7%','Entre 8% y 9%','Más del 10%'],
+   band:['Bajo','Medio','Alto','Alto']},
+];
+
+const KNOWLEDGE = [
+  {id:'d1', q:'Experiencia general como inversionista (fondos, bonos, acciones y alternativos en conjunto)', opts:['Limitada','Moderada','Extensa']},
+];
+
+const STEPS = ['Datos','Tolerancia','Capacidad','Objetivo','Experiencia','Resultado'];
+
+/* ---------- Render questions ---------- */
+
+function renderQuestion(prefix, item, samples){
+  const maxPts = item.pts ? Math.max(...item.pts) : (item.opts.length-1);
+  let html = `<div class="question">
+    <div class="qtext"><span class="qid">${item.id.toUpperCase()}</span>${item.q}</div>`;
+  if(item.hint) html += `<div class="qhint">${item.hint}</div>`;
+  if(item.mix){
+    html += `<table class="mix-table"><thead><tr><th>Cartera</th><th>Bajo riesgo</th><th>Medio riesgo</th><th>Alto riesgo</th></tr></thead><tbody>`;
+    item.mix.forEach(r=>{ html += `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`; });
+    html += `</tbody></table>`;
+  }
+  html += `<div class="options">`;
+  item.opts.forEach((label,i)=>{
+    const pts = item.pts ? item.pts[i] : i;
+    const checked = samples && samples[item.id]===i ? 'checked' : '';
+    html += `<label class="option"><input type="radio" name="${item.id}" value="${pts}" ${checked}><span>${label}</span></label>`;
+  });
+  html += `</div></div>`;
+  return html;
+}
+
+function buildStep0(){
+  return `<div class="block-head"><span class="eyebrow">Paso 1</span><h2>Tus datos</h2>
+    <p>Para poder identificar este perfil. No forma parte del puntaje.</p></div>
+    <div class="field-row">
+      <div class="field"><label>Nombre</label><input type="text" id="cliNombre" placeholder="Nombre"></div>
+      <div class="field"><label>Apellido</label><input type="text" id="cliApellido" placeholder="Apellido"></div>
+    </div>
+    <div class="field-row">
+      <div class="field"><label>Email</label><input type="email" id="cliEmail" placeholder="tu@email.com"></div>
+      <div class="field"><label>Teléfono</label><input type="tel" id="cliTel" placeholder="+54 9 11 ...."></div>
+    </div>`;
+}
+
+function buildBlock(prefix, items, samples, eyebrow, title, desc){
+  let html = `<div class="block-head"><span class="eyebrow">${eyebrow}</span><h2>${title}</h2><p>${desc}</p></div>`;
+  items.forEach(it=> html += renderQuestion(prefix, it, samples));
+  return html;
+}
+
+function buildResults(){
+  return `<div class="block-head"><span class="eyebrow">Paso 6</span><h2>Resultado</h2>
+    <p>Tolerancia y capacidad se miden por separado; el perfil final toma la banda más conservadora de las dos, salvo ajuste documentado del asesor.</p></div>
+    <div class="results-grid" id="resultsGrid"></div>
+    <h3 style="font-size:1rem;margin:1.6rem 0 .6rem;">Carteras modelo</h3>
+    <div id="noteHost"></div>
+    <div class="portfolio-row" id="portfolioRow"></div>
+    <div class="summary-card">
+      <h3 style="font-size:.9rem;margin:0 0 .7rem;">Resumen para el asesor</h3>
+      <dl class="summary-grid" id="summaryGrid"></dl>
+      <label style="font-size:.8rem;font-weight:600;color:var(--ink-soft);">Notas / justificación si el perfil se ajusta manualmente</label>
+      <textarea id="advisorNotes" placeholder="Ej.: cliente solicita perfil más conservador que el sugerido por capacidad, dejar asentado por escrito."></textarea>
+      <div class="copybar">
+        <a class="btn whatsapp" id="waBtn" href="#" target="_blank" rel="noopener">Enviar por WhatsApp</a>
+        <a class="btn mail" id="mailBtn" href="#" target="_blank" rel="noopener">Enviar por mail</a>
+        <button class="btn" id="copyBtn" type="button">Copiar resumen</button>
+        <span class="copied" id="copiedMsg">Copiado ✓</span>
+      </div>
+      <div id="saveWarn" class="save-hint" style="color:var(--warn);" hidden></div>
+      <div class="save-hint" id="sendHelp">
+        El resumen ya va escrito: al tocar WhatsApp o mail se abre la app con el texto cargado y
+        <b>sólo falta que le des enviar</b>. Si no se abre ninguna app, tocá <b>Copiar resumen</b> y
+        mandáselo a Lucas por donde prefieras — WhatsApp <span class="mono">+${ADVISOR_WHATSAPP}</span>
+        · <span class="mono">${ADVISOR_EMAIL}</span>.
+      </div>
+      <div id="manualCopy" hidden style="margin-top:.7rem;">
+        <div class="save-hint" style="color:var(--warn);">No pude copiar automáticamente. Seleccioná este texto y copialo a mano:</div>
+        <textarea id="manualCopyText" readonly style="min-height:150px;"></textarea>
+      </div>
+    </div>`;
+}
+
+/* ---------- Mount ---------- */
+
+const ADVISOR_WHATSAPP = '5491126122888';
+const ADVISOR_EMAIL = 'monpelatlucas@gmail.com';
+const SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzJ-F_jOLD9gXAfNzO4g-kklWPA4iyEiKSPV0oxdKv5RthPW98e0d_Gl2KQQVO0IW4-Zw/exec';
+let lastSentToSheet = null;
+
+function sendToSheet(data){
+  if(!SHEET_WEBAPP_URL) return;
+  const key = JSON.stringify(data);
+  if(key === lastSentToSheet) return; // avoid duplicate rows on re-render
+  lastSentToSheet = key;
+  try{
+    fetch(SHEET_WEBAPP_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: key
+    }).catch(()=>{});
+  }catch(err){ /* best-effort: never block the page on this */ }
+}
+
+const stepsHost = document.getElementById('stepsHost');
+const stepperNav = document.getElementById('stepper');
+let current = 0; // start blank on step 1 (Datos)
+let lastResults = null;
+
+function mountSteps(){
+  stepsHost.innerHTML = `
+    <section class="step" data-step="0">${buildStep0()}</section>
+    <section class="step" data-step="1">${buildBlock('a',TOLERANCE,null,'Bloque A','Tolerancia al riesgo','5 preguntas de actitud y comportamiento frente al riesgo. No hay respuestas correctas o incorrectas — elegí la que más se acerque a cómo pensás y actuás realmente.')}</section>
+    <section class="step" data-step="2">${buildBlock('b',CAPACITY,null,'Bloque B','Capacidad de riesgo','Situación financiera objetiva: horizonte, liquidez y dependencia de este capital. Define cuánto riesgo podés absorber, más allá de cuánto estés dispuesto a asumir.')}</section>
+    <section class="step" data-step="3">${buildBlock('c',GOAL,null,'Bloque C','Objetivo y retorno requerido','Para qué es esta inversión y qué retorno necesita generar. Sirve para detectar si tu perfil pide más — o menos — riesgo del que tu objetivo realmente exige.')}</section>
+    <section class="step" data-step="4">${buildBlock('d',KNOWLEDGE,null,'Bloque D','Conocimiento y experiencia','No suma ni resta al perfil de riesgo — calibra cuánto detalle necesitás en la explicación de cada instrumento.')}</section>
+    <section class="step" data-step="5">${buildResults()}</section>
+  `;
+}
+
+function mountStepper(){
+  stepperNav.innerHTML = STEPS.map((s,i)=>`<button class="step-btn" data-goto="${i}"><span class="num">0${i}</span>${s}</button>`).join('');
+  stepperNav.querySelectorAll('.step-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> goTo(Number(btn.dataset.goto)));
+  });
+}
+
+function goTo(i){
+  current = Math.max(0, Math.min(STEPS.length-1, i));
+  document.querySelectorAll('.step').forEach(s=> s.classList.toggle('active', Number(s.dataset.step)===current));
+  document.querySelectorAll('.step-btn').forEach((b,idx)=>{
+    b.classList.toggle('active', idx===current);
+    b.classList.toggle('done', idx<current);
+  });
+  document.getElementById('backBtn').disabled = current===0;
+  document.getElementById('nextBtn').textContent = current===STEPS.length-1 ? 'Ir al inicio ↩' : 'Siguiente →';
+  if(current===5) renderResults();
+  window.scrollTo({top:0, behavior:'instant'});
+}
+
+document.getElementById('backBtn').addEventListener('click', ()=> goTo(current-1));
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  if(current===STEPS.length-1){ goTo(0); } else { goTo(current+1); }
+});
+
+/* ---------- Scoring ---------- */
+
+function scoreItems(items, useCustomPts){
+  let raw=0, max=0, answered=0;
+  items.forEach(it=>{
+    const maxOpt = useCustomPts ? Math.max(...it.pts) : (it.opts.length-1);
+    max += maxOpt;
+    const sel = document.querySelector(`input[name="${it.id}"]:checked`);
+    if(sel){ raw += Number(sel.value); answered++; }
+  });
+  return {raw, max, answered, total:items.length, pct: max? Math.round(raw/max*100) : 0};
+}
+
+function bandIdx(pct){ return pct<40 ? 0 : pct<70 ? 1 : 2; }
+const TOL_LABELS = ['Conservador','Moderado','Agresivo'];
+const CAP_LABELS = ['Baja','Media','Alta'];
+
+function gaugeArc(svg, pct, color){
+  const arc = svg.querySelector('.arc-fill');
+  const len = arc.getTotalLength();
+  arc.style.strokeDasharray = len;
+  arc.style.strokeDashoffset = len * (1 - pct/100);
+  arc.style.stroke = color;
+}
+
+function gaugeSVG(id){
+  return `<svg id="${id}" viewBox="0 0 200 115" width="112" height="65" style="flex:none;">
+    <path d="M10,100 A90,90 0 0 1 190,100" fill="none" stroke="var(--line)" stroke-width="14" stroke-linecap="round"/>
+    <path class="arc-fill" d="M10,100 A90,90 0 0 1 190,100" fill="none" stroke-width="14" stroke-linecap="round"/>
+  </svg>`;
+}
+
+function renderResults(){
+  const tol = scoreItems(TOLERANCE, false);
+  const cap = scoreItems(CAPACITY, true);
+  const tolIdx = bandIdx(tol.pct);
+  const capIdx = bandIdx(cap.pct);
+  const tolBand = TOL_LABELS[tolIdx];
+  const capBand = CAP_LABELS[capIdx];
+  const finalRank = Math.min(tolIdx, capIdx);
+  const finalBand = TOL_LABELS[finalRank];
+
+  let goalIdx = null;
+  const radios = document.querySelectorAll('input[name="c2"]');
+  radios.forEach((r,i)=>{ if(r.checked) goalIdx = i; });
+  const goalBand = goalIdx!==null ? GOAL[1].band[goalIdx] : '—';
+
+  let driverText;
+  if(tolIdx < capIdx){
+    driverText = `Este perfil quedó definido por tu <b>Tolerancia</b> (${tolBand}) — tu Capacidad daría para más (${capBand}), pero no llevamos el perfil hacia arriba solo porque la situación financiera lo permita.`;
+  } else if(capIdx < tolIdx){
+    driverText = `Este perfil quedó definido por tu <b>Capacidad</b> (${capBand}) — tu Tolerancia psicológica es más alta (${tolBand}), pero no recomendamos más riesgo del que tu situación financiera actual sugiere asumir.`;
+  } else {
+    driverText = `Tolerancia y Capacidad coinciden en la misma banda (${tolBand}) — no hubo que elegir entre las dos.`;
+  }
+
+  const grid = document.getElementById('resultsGrid');
+  grid.innerHTML = `
+    <div class="gauge-card">
+      <h3>Tolerancia (psicométrica)</h3>
+      <div class="gauge-wrap">
+        ${gaugeSVG('gaugeTol')}
+        <div><div class="gauge-num">${tol.pct}</div><div class="gauge-band">${tolBand}</div><div class="gauge-sub">${tol.answered}/${tol.total} preguntas · escala 0–100</div></div>
+      </div>
+    </div>
+    <div class="gauge-card">
+      <h3>Capacidad financiera</h3>
+      <div class="gauge-wrap">
+        ${gaugeSVG('gaugeCap')}
+        <div><div class="gauge-num">${cap.pct}</div><div class="gauge-band">${capBand}</div><div class="gauge-sub">${cap.answered}/${cap.total} preguntas · escala 0–100</div></div>
+      </div>
+    </div>
+    <div class="final-card">
+      <div class="eyebrow">Perfil final (min. de tolerancia y capacidad)</div>
+      <div class="profile-name">${finalBand}</div>
+      <div class="band-track">
+        <div class="fill" style="width:${(finalRank+1)/3*100}%"></div>
+        <div class="marker" style="left:${tol.pct}%"></div>
+      </div>
+      <div class="band-labels"><span>Conservador</span><span>Moderado</span><span>Agresivo</span></div>
+      <p class="driver-note">${driverText}</p>
+    </div>
+  `;
+  requestAnimationFrame(()=>{
+    gaugeArc(document.getElementById('gaugeTol'), tol.pct, 'var(--gold)');
+    gaugeArc(document.getElementById('gaugeCap'), cap.pct, 'var(--gold)');
+  });
+
+  // mismatch note
+  let noteHtml = '';
+  if(goalBand==='Bajo' && finalRank>0){
+    noteHtml = `<div class="note-box good">💡 Tu objetivo no exige tanto riesgo como tu perfil final sugiere (perfil <b>${finalBand}</b>, retorno requerido <b>Bajo</b>). Hay margen para una cartera más conservadora si preferís priorizar estabilidad.</div>`;
+  } else if(goalBand==='Alto' && finalRank<2){
+    noteHtml = `<div class="note-box warn">⚠️ Tu objetivo requiere más crecimiento del que tu perfil final sugiere (perfil <b>${finalBand}</b>, retorno requerido <b>Alto</b>). Vale la pena revisar plazo, aportes adicionales o expectativas con tu asesor antes de asumir más riesgo del que tolerás o podés afrontar.</div>`;
+  }
+  document.getElementById('noteHost').innerHTML = noteHtml;
+
+  const portfolios = [
+    {name:'Conservador', desc:'Foco en preservación de capital. Mayor peso en renta fija de corta duración y liquidez.'},
+    {name:'Moderado', desc:'Balance entre crecimiento y estabilidad. Mix diversificado entre renta fija, equity y alternativos líquidos.'},
+    {name:'Agresivo', desc:'Foco en crecimiento de largo plazo. Mayor peso en equity y alternativos, menor liquidez exigida.'},
+  ];
+  document.getElementById('portfolioRow').innerHTML = portfolios.map(p=>`
+    <div class="pcard ${p.name===finalBand?'active':''}">
+      <h4>${p.name}</h4>
+      <p>${p.desc}</p>
+      ${p.name===finalBand?'<div class="placeholder-tag">Placeholder — cruzar con cartera modelo real</div>':''}
+    </div>`).join('');
+
+  const know = KNOWLEDGE.map(it=>{
+    const sel = document.querySelector(`input[name="${it.id}"]:checked`);
+    const idx = sel ? Number(sel.value) : null;
+    return idx!==null ? `${it.q.replace('Experiencia con ','').replace('Experiencia general como inversionista','General')}: ${it.opts[idx]}` : null;
+  }).filter(Boolean).join(' · ');
+
+  const nombre = document.getElementById('cliNombre')?.value || '—';
+  const apellido = document.getElementById('cliApellido')?.value || '';
+  const email = document.getElementById('cliEmail')?.value || '—';
+  const goalObjIdx = document.querySelector('input[name="c1"]:checked');
+  const goalObj = goalObjIdx ? GOAL[0].opts[Number(goalObjIdx.value)] : '—';
+
+  document.getElementById('summaryGrid').innerHTML = `
+    <dt>Cliente</dt><dd>${nombre} ${apellido}</dd>
+    <dt>Email</dt><dd>${email}</dd>
+    <dt>Tolerancia</dt><dd>${tol.pct}/100 — ${tolBand}</dd>
+    <dt>Capacidad</dt><dd>${cap.pct}/100 — ${capBand}</dd>
+    <dt>Retorno requerido</dt><dd>${goalBand}</dd>
+    <dt>Objetivo declarado</dt><dd>${goalObj}</dd>
+    <dt>Perfil final</dt><dd>${finalBand}</dd>
+    <dt>Conocimiento</dt><dd style="font-weight:500;">${know || '—'}</dd>
+    <dt>Versión del cuestionario</dt><dd>v${QUESTIONNAIRE_VERSION}</dd>
+  `;
+
+  window._summaryText = `Perfil de Riesgo — ${nombre} ${apellido} (${email})
+Tolerancia: ${tol.pct}/100 (${tolBand})
+Capacidad: ${cap.pct}/100 (${capBand})
+Retorno requerido: ${goalBand}
+Objetivo declarado: ${goalObj}
+Perfil final: ${finalBand}
+Conocimiento: ${know || '—'}
+Versión del cuestionario: v${QUESTIONNAIRE_VERSION}`;
+
+  const rawAnswers = {};
+  [...TOLERANCE, ...CAPACITY, ...GOAL, ...KNOWLEDGE].forEach(it=>{
+    const sel = document.querySelector(`input[name="${it.id}"]:checked`);
+    rawAnswers[it.id] = sel ? sel.parentElement.textContent.trim() : null;
+  });
+
+  lastResults = {
+    version: QUESTIONNAIRE_VERSION,
+    answered: tol.answered + cap.answered,
+    nombre, apellido, email,
+    telefono: document.getElementById('cliTel')?.value || '',
+    tolerancia: {pct: tol.pct, banda: tolBand},
+    capacidad: {pct: cap.pct, banda: capBand},
+    perfilFinal: finalBand,
+    retornoRequerido: goalBand,
+    objetivo: goalObj,
+    conocimiento: know || '—',
+    respuestas: rawAnswers,
+  };
+
+  updateSendLinks();
+  if(lastResults.answered > 0) sendToSheet(lastResults);
+}
+
+function fullText(){
+  const notes = document.getElementById('advisorNotes')?.value || '';
+  return window._summaryText + (notes ? `\nNotas del asesor: ${notes}` : '');
+}
+
+function updateSendLinks(){
+  const waBtn = document.getElementById('waBtn');
+  const mailBtn = document.getElementById('mailBtn');
+  if(!waBtn || !mailBtn || !lastResults) return;
+  const text = fullText();
+  waBtn.href = 'https://wa.me/' + ADVISOR_WHATSAPP + '?text=' + encodeURIComponent(text);
+  const subject = 'Perfil de Riesgo — ' + lastResults.nombre + ' ' + lastResults.apellido;
+  const clientEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lastResults.email) ? lastResults.email : '';
+  const cc = clientEmail && clientEmail.toLowerCase() !== ADVISOR_EMAIL.toLowerCase() ? '&cc=' + encodeURIComponent(clientEmail) : '';
+  mailBtn.href = 'mailto:' + ADVISOR_EMAIL + '?subject=' + encodeURIComponent(subject) + cc + '&body=' + encodeURIComponent(text);
+}
+
+document.addEventListener('input', (e)=>{
+  if(e.target && e.target.id==='advisorNotes') updateSendLinks();
+});
+
+async function copyText(text){
+  try{
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  }catch(err){ /* fall through to execCommand */ }
+  try{
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly','');
+    ta.style.position = 'fixed';
+    ta.style.top = '0';
+    ta.style.left = '0';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    const ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    return !!ok;
+  }catch(err){ return false; }
+}
+
+/* Returns null when it's safe to send, otherwise the reason to show inline. */
+function sendGuardProblem(){
+  if(!lastResults) return 'Todavía no hay un resultado calculado — completá el cuestionario antes de enviar.';
+  if(!lastResults.answered) return 'Todavía no respondiste ninguna pregunta — completá los bloques Tolerancia y Capacidad antes de enviar.';
+  return null;
+}
+
+document.addEventListener('click', async (e)=>{
+  const el = (e.target && e.target.closest) ? e.target : null;
+  if(!el) return;
+
+  if(el.closest('#copyBtn')){
+    const text = fullText();
+    const ok = await copyText(text);
+    const msg = document.getElementById('copiedMsg');
+    const manual = document.getElementById('manualCopy');
+    if(ok){
+      if(manual) manual.hidden = true;
+      if(msg){
+        msg.classList.add('show');
+        setTimeout(()=> msg.classList.remove('show'), 1800);
+      }
+    }else if(manual){
+      // Clipboard API can be unavailable or refused; never leave the client stuck.
+      const box = document.getElementById('manualCopyText');
+      box.value = text;
+      manual.hidden = false;
+      box.focus();
+      box.select();
+    }
+    return;
+  }
+
+  const sendBtn = el.closest('#waBtn, #mailBtn');
+  if(sendBtn){
+    const warn = document.getElementById('saveWarn');
+    const problem = sendGuardProblem();
+    if(problem){
+      e.preventDefault();
+      warn.textContent = problem;
+      warn.hidden = false;
+      return;
+    }
+    warn.hidden = true;
+    // The hand-off to WhatsApp/Mail can silently do nothing if no app is
+    // configured, so make the manual fallback visually prominent after a tap.
+    const help = document.getElementById('sendHelp');
+    if(help) help.style.color = 'var(--warn)';
+  }
+});
+
+mountSteps();
+mountStepper();
+goTo(0);
+</script>
+</body>
+</html>
