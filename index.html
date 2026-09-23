@@ -286,13 +286,13 @@ function buildStep0(){
   return `<div class="block-head"><span class="eyebrow">Paso 1</span><h2>Tus datos</h2>
     <p>Para poder identificar este perfil. No forma parte del puntaje.</p></div>
     <div class="field-row">
-      <div class="field"><label>Nombre</label><input type="text" id="cliNombre" placeholder="Nombre"></div>
-      <div class="field"><label>Apellido</label><input type="text" id="cliApellido" placeholder="Apellido"></div>
+      <div class="field"><label>Nombre *</label><input type="text" id="cliNombre" placeholder="Nombre" autocomplete="given-name"></div>
+      <div class="field"><label>Apellido *</label><input type="text" id="cliApellido" placeholder="Apellido" autocomplete="family-name"></div>
     </div>
     <div class="field-row">
       <div class="field"><label>Email</label><input type="email" id="cliEmail" placeholder="tu@email.com"></div>
-      <div class="field"><label>Teléfono</label><input type="tel" id="cliTel" placeholder="+54 9 11 ...."></div>
-    </div>`;
+    </div>
+    <div id="datosWarn" class="save-hint" style="color:var(--warn);" hidden></div>`;
 }
 
 function buildBlock(prefix, items, samples, eyebrow, title, desc){
@@ -378,7 +378,18 @@ function mountStepper(){
   });
 }
 
+function datosProblem(){
+  const n = (document.getElementById('cliNombre')?.value || '').trim();
+  const a = (document.getElementById('cliApellido')?.value || '').trim();
+  return (n && a) ? null : 'Completá tu nombre y apellido para continuar.';
+}
+
 function goTo(i){
+  const warn = document.getElementById('datosWarn');
+  if(i>0 && datosProblem()){
+    i = 0;
+    if(warn){ warn.textContent = datosProblem(); warn.hidden = false; }
+  } else if(warn){ warn.hidden = true; }
   current = Math.max(0, Math.min(STEPS.length-1, i));
   document.querySelectorAll('.step').forEach(s=> s.classList.toggle('active', Number(s.dataset.step)===current));
   document.querySelectorAll('.step-btn').forEach((b,idx)=>{
@@ -548,7 +559,6 @@ Versión del cuestionario: v${QUESTIONNAIRE_VERSION}`;
     version: QUESTIONNAIRE_VERSION,
     answered: tol.answered + cap.answered,
     nombre, apellido, email,
-    telefono: document.getElementById('cliTel')?.value || '',
     tolerancia: {pct: tol.pct, banda: tolBand},
     capacidad: {pct: cap.pct, banda: capBand},
     perfilFinal: finalBand,
