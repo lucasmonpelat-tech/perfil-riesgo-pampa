@@ -469,9 +469,9 @@ function renderResults(){
   // mismatch note
   let noteHtml = '';
   if(goalBand==='Bajo' && finalRank>0){
-    noteHtml = `<div class="note-box good">💡 Tu objetivo no exige tanto riesgo como tu perfil final sugiere (perfil <b>${finalBand}</b>, retorno requerido <b>Bajo</b>). Hay margen para una cartera más conservadora si preferís priorizar estabilidad.</div>`;
+    noteHtml = `<div class="note-box good"><span>💡</span><span>Tu objetivo no exige tanto riesgo como tu perfil final sugiere (perfil <b>${finalBand}</b>, retorno requerido <b>Bajo</b>). Hay margen para una cartera más conservadora si preferís priorizar estabilidad.</span></div>`;
   } else if(goalBand==='Alto' && finalRank<2){
-    noteHtml = `<div class="note-box warn">⚠️ Tu objetivo requiere más crecimiento del que tu perfil final sugiere (perfil <b>${finalBand}</b>, retorno requerido <b>Alto</b>). Vale la pena revisar plazo, aportes adicionales o expectativas con tu asesor antes de asumir más riesgo del que tolerás o podés afrontar.</div>`;
+    noteHtml = `<div class="note-box warn"><span>⚠️</span><span>Tu objetivo requiere más crecimiento del que tu perfil final sugiere (perfil <b>${finalBand}</b>, retorno requerido <b>Alto</b>). Vale la pena revisar plazo, aportes adicionales o expectativas con tu asesor antes de asumir más riesgo del que tolerás o podés afrontar.</span></div>`;
   }
   document.getElementById('noteHost').innerHTML = noteHtml;
 
@@ -484,7 +484,6 @@ function renderResults(){
     <div class="pcard ${p.name===finalBand?'active':''}">
       <h4>${p.name}</h4>
       <p>${p.desc}</p>
-      ${p.name===finalBand?'<div class="placeholder-tag">Placeholder — cruzar con cartera modelo real</div>':''}
     </div>`).join('');
 
   const know = KNOWLEDGE.map(it=>{
