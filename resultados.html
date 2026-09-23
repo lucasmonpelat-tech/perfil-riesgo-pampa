@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resultados en vivo — Perfil de Riesgo · Pampa Capital</title>
+<style>
+  :root{--navy:#0b1a2e;--navy2:#12263f;--gold:#c9a24b;--text:#f2f4f7;--muted:#9fb0c3;--c1:#4f9fd6;--c2:#c9a24b;--c3:#d6604f}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{background:var(--navy);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;display:flex;flex-direction:column;padding:3vh 5vw}
+  header{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid var(--gold);padding-bottom:1.5vh}
+  h1{margin:0;font-size:clamp(22px,3.4vw,52px);font-weight:600;letter-spacing:.5px}
+  .brand{color:var(--gold);font-size:clamp(14px,1.6vw,24px);letter-spacing:3px;text-transform:uppercase}
+  main{flex:1;display:grid;grid-template-columns:1fr 2fr;gap:4vw;align-items:center;padding:3vh 0}
+  .left{text-align:center}
+  .total{font-size:clamp(80px,17vw,280px);line-height:1;font-weight:700;color:var(--gold)}
+  .lbl{color:var(--muted);font-size:clamp(14px,1.8vw,26px);margin-top:1vh}
+  .pred{margin-top:4vh;padding:2vh 1vw;background:var(--navy2);border-radius:14px}
+  .pred b{display:block;font-size:clamp(24px,4vw,64px);margin-top:.5vh}
+  .bars{display:flex;flex-direction:column;gap:3vh}
+  .row .top{display:flex;justify-content:space-between;font-size:clamp(18px,2.4vw,38px);margin-bottom:.8vh}
+  .track{background:var(--navy2);border-radius:12px;height:clamp(28px,5vh,60px);overflow:hidden}
+  .fill{height:100%;width:0;border-radius:12px;transition:width .8s ease}
+  .avgs{display:flex;gap:2vw;margin-top:1vh}
+  .avg{flex:1;background:var(--navy2);border-radius:14px;padding:1.6vh 1vw;text-align:center}
+  .avg b{display:block;font-size:clamp(24px,3.4vw,54px);color:var(--gold)}
+  .avg span{color:var(--muted);font-size:clamp(12px,1.4vw,22px)}
+  footer{color:var(--muted);font-size:clamp(11px,1.1vw,16px);display:flex;justify-content:space-between}
+  @media (max-width:800px){main{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header><h1>Perfil de riesgo del auditorio</h1><span class="brand">Pampa Capital</span></header>
+<main>
+  <div class="left">
+    <div class="total" id="total">0</div>
+    <div class="lbl">personas ya respondieron</div>
+    <div class="pred"><span class="lbl">Perfil predominante</span><b id="pred">—</b></div>
+  </div>
+  <div>
+    <div class="bars" id="bars"></div>
+    <div class="avgs">
+      <div class="avg"><b id="tol">—</b><span>Tolerancia promedio</span></div>
+      <div class="avg"><b id="cap">—</b><span>Capacidad promedio</span></div>
+    </div>
+  </div>
+</main>
+<footer><span id="estado">Conectando…</span><span>Se actualiza sola cada 4 segundos</span></footer>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbzJ-F_jOLD9gXAfNzO4g-kklWPA4iyEiKSPV0oxdKv5RthPW98e0d_Gl2KQQVO0IW4-Zw/exec';
+const PERFILES = [['Conservador','var(--c1)'],['Moderado','var(--c2)'],['Agresivo','var(--c3)']];
+const params = new URLSearchParams(location.search);
+// ?desde=2026-09-23T09:00 filtra respuestas anteriores (pruebas). Por defecto: hoy 00:00 hora local.
+const d0 = new Date(); d0.setHours(0,0,0,0);
+const desde = params.get('desde') ? new Date(params.get('desde')) : d0;
+
+const bars = document.getElementById('bars');
+bars.innerHTML = PERFILES.map(([n,c],i)=>`<div class="row"><div class="top"><span>${n}</span><span id="n${i}">0 · 0%</span></div><div class="track"><div class="fill" id="f${i}" style="background:${c}"></div></div></div>`).join('');
+
+async function tick(){
+  try{
+    const r = await fetch(API + '?desde=' + encodeURIComponent(desde.toISOString()) + '&t=' + Date.now());
+    const d = await r.json();
+    const total = d.total || 0;
+    document.getElementById('total').textContent = total;
+    let max = -1, pred = '—';
+    PERFILES.forEach(([n],i)=>{
+      const k = (d.perfiles && d.perfiles[n]) || 0;
+      const pct = total ? Math.round(k*100/total) : 0;
+      document.getElementById('n'+i).textContent = k + ' · ' + pct + '%';
+      document.getElementById('f'+i).style.width = pct + '%';
+      if(k > max && k > 0){max = k; pred = n;}
+    });
+    document.getElementById('pred').textContent = pred;
+    document.getElementById('tol').textContent = d.tolProm==null ? '—' : Math.round(d.tolProm) + '%';
+    document.getElementById('cap').textContent = d.capProm==null ? '—' : Math.round(d.capProm) + '%';
+    document.getElementById('estado').textContent = 'Actualizado ' + new Date().toLocaleTimeString('es-AR');
+  }catch(e){
+    document.getElementById('estado').textContent = 'Sin conexión, reintentando…';
+  }
+}
+tick(); setInterval(tick, 4000);
+</script>
+</body>
+</html>
