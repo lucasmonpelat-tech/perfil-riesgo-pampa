@@ -185,14 +185,7 @@
   .summary-grid dt{ color:var(--muted); }
   .summary-grid dd{ margin:0 0 .5rem; font-weight:600; }
   textarea{ width:100%; min-height:70px; border:1px solid var(--line); border-radius:8px; padding:.6rem .7rem; font-family:inherit; font-size:.85rem; background:var(--card); color:var(--ink); resize:vertical; }
-  .copybar{ display:flex; gap:.6rem; align-items:center; margin-top:.7rem; flex-wrap:wrap; }
-  .copied{ font-size:.78rem; color:var(--good); opacity:0; transition:opacity .2s; }
-  .copied.show{ opacity:1; }
   .save-hint{ font-size:.76rem; color:var(--muted); margin-top:.4rem; }
-  .btn.whatsapp{ background:#25d366; color:#06210f; border-color:#25d366; }
-  .btn.whatsapp:hover{ opacity:.9; }
-  .btn.mail{ background:var(--ink); color:var(--gold-soft); border-color:var(--ink); }
-  .btn.mail:hover{ opacity:.9; }
 </style>
 </head>
 <body>
@@ -311,26 +304,11 @@ function buildResults(){
     <div class="summary-card">
       <h3 style="font-size:.9rem;margin:0 0 .7rem;">Resumen para el asesor</h3>
       <dl class="summary-grid" id="summaryGrid"></dl>
-      <label style="font-size:.8rem;font-weight:600;color:var(--ink-soft);">Notas / justificación si el perfil se ajusta manualmente</label>
-      <textarea id="advisorNotes" placeholder="Ej.: cliente solicita perfil más conservador que el sugerido por capacidad, dejar asentado por escrito."></textarea>
-      <div class="copybar">
-        <a class="btn whatsapp" id="waBtn" href="#" target="_blank" rel="noopener">Enviar por WhatsApp</a>
-        <a class="btn mail" id="mailBtn" href="#" target="_blank" rel="noopener">Enviar por mail</a>
-        <button class="btn" id="copyBtn" type="button">Copiar resumen</button>
-        <span class="copied" id="copiedMsg">Copiado ✓</span>
-      </div>
-      <div id="saveWarn" class="save-hint" style="color:var(--warn);" hidden></div>
-      <div id="manualCopy" hidden style="margin-top:.7rem;">
-        <div class="save-hint" style="color:var(--warn);">No pude copiar automáticamente. Seleccioná este texto y copialo a mano:</div>
-        <textarea id="manualCopyText" readonly style="min-height:150px;"></textarea>
-      </div>
     </div>`;
 }
 
 /* ---------- Mount ---------- */
 
-const ADVISOR_WHATSAPP = '5491126122888';
-const ADVISOR_EMAIL = 'monpelatlucas@gmail.com';
 const SHEET_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzJ-F_jOLD9gXAfNzO4g-kklWPA4iyEiKSPV0oxdKv5RthPW98e0d_Gl2KQQVO0IW4-Zw/exec';
 let lastSentToSheet = null;
 
@@ -562,105 +540,8 @@ Versión del cuestionario: v${QUESTIONNAIRE_VERSION}`;
     respuestas: rawAnswers,
   };
 
-  updateSendLinks();
   if(lastResults.answered > 0) sendToSheet(lastResults);
 }
-
-function fullText(){
-  const notes = document.getElementById('advisorNotes')?.value || '';
-  return window._summaryText + (notes ? `\nNotas del asesor: ${notes}` : '');
-}
-
-function updateSendLinks(){
-  const waBtn = document.getElementById('waBtn');
-  const mailBtn = document.getElementById('mailBtn');
-  if(!waBtn || !mailBtn || !lastResults) return;
-  const text = fullText();
-  waBtn.href = 'https://wa.me/' + ADVISOR_WHATSAPP + '?text=' + encodeURIComponent(text);
-  const subject = 'Perfil de Riesgo — ' + lastResults.nombre + ' ' + lastResults.apellido;
-  const clientEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(lastResults.email) ? lastResults.email : '';
-  const cc = clientEmail && clientEmail.toLowerCase() !== ADVISOR_EMAIL.toLowerCase() ? '&cc=' + encodeURIComponent(clientEmail) : '';
-  mailBtn.href = 'mailto:' + ADVISOR_EMAIL + '?subject=' + encodeURIComponent(subject) + cc + '&body=' + encodeURIComponent(text);
-}
-
-document.addEventListener('input', (e)=>{
-  if(e.target && e.target.id==='advisorNotes') updateSendLinks();
-});
-
-async function copyText(text){
-  try{
-    if(navigator.clipboard && navigator.clipboard.writeText){
-      await navigator.clipboard.writeText(text);
-      return true;
-    }
-  }catch(err){ /* fall through to execCommand */ }
-  try{
-    const ta = document.createElement('textarea');
-    ta.value = text;
-    ta.setAttribute('readonly','');
-    ta.style.position = 'fixed';
-    ta.style.top = '0';
-    ta.style.left = '0';
-    ta.style.opacity = '0';
-    document.body.appendChild(ta);
-    ta.select();
-    ta.setSelectionRange(0, text.length);
-    const ok = document.execCommand('copy');
-    document.body.removeChild(ta);
-    return !!ok;
-  }catch(err){ return false; }
-}
-
-/* Returns null when it's safe to send, otherwise the reason to show inline. */
-function sendGuardProblem(){
-  if(!lastResults) return 'Todavía no hay un resultado calculado — completá el cuestionario antes de enviar.';
-  if(!lastResults.answered) return 'Todavía no respondiste ninguna pregunta — completá los bloques Tolerancia y Capacidad antes de enviar.';
-  return null;
-}
-
-document.addEventListener('click', async (e)=>{
-  const el = (e.target && e.target.closest) ? e.target : null;
-  if(!el) return;
-
-  if(el.closest('#copyBtn')){
-    const text = fullText();
-    const ok = await copyText(text);
-    const msg = document.getElementById('copiedMsg');
-    const manual = document.getElementById('manualCopy');
-    if(ok){
-      if(manual) manual.hidden = true;
-      if(msg){
-        msg.classList.add('show');
-        setTimeout(()=> msg.classList.remove('show'), 1800);
-      }
-    }else if(manual){
-      // Clipboard API can be unavailable or refused; never leave the client stuck.
-      const box = document.getElementById('manualCopyText');
-      box.value = text;
-      manual.hidden = false;
-      box.focus();
-      box.select();
-    }
-    return;
-  }
-
-  const sendBtn = el.closest('#waBtn, #mailBtn');
-  if(sendBtn){
-    const warn = document.getElementById('saveWarn');
-    const problem = sendGuardProblem();
-    if(problem){
-      e.preventDefault();
-      warn.textContent = problem;
-      warn.hidden = false;
-      return;
-    }
-    warn.hidden = true;
-    // The hand-off to WhatsApp/Mail can silently do nothing if no app is
-    // configured, so make the manual fallback visually prominent after a tap.
-    const help = document.getElementById('sendHelp');
-    if(help) help.style.color = 'var(--warn)';
-  }
-});
 
 mountSteps();
 mountStepper();
